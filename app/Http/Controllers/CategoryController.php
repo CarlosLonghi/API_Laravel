@@ -7,6 +7,7 @@ use App\Http\Requests\CategoryUpdateRequest;
 use App\Models\Category;
 use App\Services\CategoryServices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class CategoryController extends Controller
 {
