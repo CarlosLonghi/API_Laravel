@@ -3,16 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+use App\Services\BrandServices;
 use Illuminate\Http\Request;
 
 class BrandController extends Controller
 {
+
+    public function __construct(protected BrandServices $brandServices)
+    {}
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $brands = $this->brandServices->list();
+        return response()->json($brands);
     }
 
     /**
