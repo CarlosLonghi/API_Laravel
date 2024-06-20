@@ -13,7 +13,7 @@ class Image extends Model
     protected $fillable = [
         'sku_id',
         'url',
-        'cover'
+        'is_cover'
     ];
 
     public function sku(): BelongsTo

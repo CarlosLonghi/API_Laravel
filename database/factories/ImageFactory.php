@@ -20,7 +20,7 @@ class ImageFactory extends Factory
         return [
             'sku_id' => Sku::factory(),
             'url' => fake()->imageUrl(),
-            'cover' => fake()->boolean()
+            'is_cover' => fake()->boolean()
         ];
     }
 }

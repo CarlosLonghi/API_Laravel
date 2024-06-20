@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sku_id')->constrained('skus');
             $table->string('url');
-            $table->boolean('cover');
+            $table->boolean('is_cover');
             $table->timestamps();
         });
     }
