@@ -30,7 +30,7 @@ class ProductServices
 
       foreach ($skus as $key => $sku) {
         foreach ($request->sku[$key]['images'] as $index => $image) {
-          $path = $image['url']->store('products');
+          $path = $image['url']->store('products', 's3');
 
           $sku->images()->create([
             'url' => $path,
@@ -47,13 +47,48 @@ class ProductServices
 
   public function update(ProductUpdateRequest $request, Product $product)
   {
-    $product->update($request->validated());
+    $product = DB::transaction(function () use ($request, $product) {
+      $product_data = $request->except('sku');
+      $product_data['slug'] = Str::slug($product_data['name']);
+
+      $product->update($product_data);
+      
+      foreach ($request->sku as $key => $sku) {
+
+        $sku = $product->skus()->updateOrCreate(['id' => $sku['id'] ?? 0], $sku);
+
+        if (isset($request->sku[$key]['images'])) {
+          foreach ($request->sku[$key]['images'] as $index => $image) {
+            $path = $image['url']->store('products', 's3');
+  
+            $sku->images()->create([
+              'url' => $path,
+              'is_cover' => $index === 0,
+            ]);
+          }
+        }
+      }
+
+      return $product->load('skus.images');
+    });
     
     return $product;
   }
 
   public function destroy(Product $product)
   {
-    $product->delete();
+    DB::transaction(function () use ($product) {
+      $product = $product->load('skus.images');
+
+      foreach ($product->skus as $sku) {
+        foreach ($sku->images as $image) {
+          $image->delete();
+        }
+
+        $sku->delete();
+      }
+
+      $product->delete();
+    });
   }
 }
